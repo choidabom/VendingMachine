@@ -1,0 +1,6 @@
+database:
+  MYSQL_HOST: "127.0.0.1"
+  MYSQL_USER: "root"
+  MYSQL_PW: "0000"
+  MYSQL_DB: "vending_machine"
+  MYSQL_PORT: 3306,
