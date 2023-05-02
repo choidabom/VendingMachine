@@ -1,7 +1,7 @@
 export interface VMResourceEntity {
-    id: number;
-    vm_id: number;
+    // id: number;
+    // vm_id: number;
     resource_id: number;
-    name: string;
+    // name: string;
     quantity: number;
 }
