@@ -14,7 +14,7 @@ export class DBConnection {
             database: dbConfig.MYSQL_DB,
             port: dbConfig.MYSQL_PORT
         });
-        console.log("연결됨");
+        // console.log("연결됨");
     }
 
     startTransaction = async (): Promise<PoolConnection> => {
@@ -43,8 +43,8 @@ export class DBConnection {
     };
 }
 
-const db = new DBConnection();
 
+const db = new DBConnection();
 const transaction = async (sql: string) => {
     const connection = await db.startTransaction();
     try {
