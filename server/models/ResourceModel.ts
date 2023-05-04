@@ -10,6 +10,16 @@ async function checkLeftChange(vmID: number): Promise<number> {
     return leftChangeResult[0].quantity;
 }
 
+
+// 자판기 재료 감소 확인용
+async function checkLeftResource(vmID: number) {
+    const checkResult = `
+        SELECT resource_id, quantity FROM vm_resource WHERE vm_id = ${vmID}
+    `;
+    return await transaction(checkResult);
+}
+
+
 // 재료 차감 함수
 async function deductQuantity(vmID: number, resourceID: number, leftResource: number) {
     const deductQuantitySQL = `
@@ -23,4 +33,4 @@ async function deductQuantity(vmID: number, resourceID: number, leftResource: nu
     }
 }
 
-export { checkLeftChange, deductQuantity };
+export { checkLeftChange, checkLeftResource, deductQuantity };

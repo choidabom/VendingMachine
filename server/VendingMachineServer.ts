@@ -112,6 +112,7 @@ export class VendingMachineServer {
     };
 
 
+
     // 자판기 내 resource 양(vmResource)에서 누적 재고 필요 수량(accumulateResource) 차감
     async reduceResource(vmID: number, accumulateResource: Array<ResourceEntity>, vmResource: Array<VMResourceEntity>): Promise<boolean> {
         let isAvailable = true;
@@ -120,7 +121,7 @@ export class VendingMachineServer {
             let leftResource = vmResource[i].quantity - accumulateResource[i].amount;
             if (leftResource >= 0) {
                 await deductQuantity(vmID, resourceID, leftResource);
-                console.log(`재료 ${vmResource[i].resource_id}: 자판기 내 resource 양 ${vmResource[i].quantity} - 재고 필요 수량 ${accumulateResource[i].amount} = 자판기 내 남은 재고 양 ${leftResource}`);
+                // console.log(`재료 ${vmResource[i].resource_id}: 자판기 내 resource 양 ${vmResource[i].quantity} - 재고 필요 수량 ${accumulateResource[i].amount} = 자판기 내 남은 재고 양 ${leftResource}`);
             } else {
                 isAvailable = false;
                 console.log(`resource [${vmResource[i].resource_id}]의 부족으로 판매할 수 없습니다.`);

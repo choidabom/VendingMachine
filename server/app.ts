@@ -3,6 +3,7 @@ import { transaction } from "./db/db";
 import express, { Request, Response } from "express";
 import { VendingMachineServer } from "./VendingMachineServer";
 import { ProductEntity } from "./entity/ProductEntity";
+import { checkLeftResource } from "./models/ResourceModel";
 import { addingOrder, priceSum } from "./models/OrderModel";
 import { payProductPrice } from "./controller/saleController";
 
@@ -84,18 +85,14 @@ app.post('/vending_machine/:vmID/order', async (req: Request, res: Response) => 
 
     try {
         const totalPrice = await priceSum(selectedProduct); // 상품 총합
+        // 아래 필요한 로직들에서 취소 또는 에러가 났을 경우, rollback을 하게끔 구현해야한다. 
         // 주문 정보 DB 생성 - 생성 여부에 따라 가격 결제 여부 판단
         if (await addingOrder(vmID, selectedProduct, paymentMethod)) {
 
             // 가격 결제 로직 
             if (await payProductPrice(vmID, totalPrice, paymentMethod, inputMoney)) {
                 if (await vm.checkReduceResource(vmID, selectedProduct)) {
-                    // 자판기 재료 감소 확인용
-                    // const checkResult = `
-                    //     SELECT quantity FROM vm_resource WHERE vm_id = ${vmID}
-                    // `;
-                    // const result = await transaction(checkResult);
-                    // console.log(result);
+                    console.log('Vending Machine 내 남은 자원 양: ', await checkLeftResource(vmID));
                     res.status(200).send(`Successfully paid ${totalPrice} won for product.`);
                 } else {
                     res.status(500).send('Failed to reduce resource');
