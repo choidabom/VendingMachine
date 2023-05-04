@@ -12,7 +12,7 @@ class CashPaymentService implements IPaymentService {
             let leftVMMoney: number = await checkLeftChange(vmID); // 자판기 잔액
 
             if (isNaN(price) || price < priceSum) {
-                console.log("지불 금액이 부족하거나 올바르지 않습니다. 다시 입력해주세요.");
+                console.log("지불 금액이 부족하거나 올바르지 않습니다.");
                 resolve(false);
             }
             else {

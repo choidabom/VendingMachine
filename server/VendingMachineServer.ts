@@ -95,6 +95,20 @@ export class VendingMachineServer {
     };
 
 
+    // 선택된 제품 반환 함수 (여러 제품 가능)
+    async getProductsList(selectedIDs: Array<number>): Promise<Array<ProductEntity>> {
+        let products: Array<ProductEntity> = [];
+        for (let id of selectedIDs) {
+            const getProductSQL = `
+                SELECT * FROM product WHERE id = ${id}
+            `;
+            const product = await transaction(getProductSQL);
+            products.push(product[0]);
+        }
+        return products;
+    };
+
+
     // 누적 자원 필요 수량 정보와 vm내 자원 수량 정보 조회
     async checkReduceResource(vmID: number, products: Array<ProductEntity>): Promise<boolean> {
         // 1. 누적 자원 필요 수량 정보
