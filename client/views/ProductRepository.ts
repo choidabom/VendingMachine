@@ -7,7 +7,7 @@ async function showSelectedProductList(products: Array<ProductEntity>) {
         console.log(`=== ${product.name}: ${product.price}원 ===`);
         total += product.price;
     }
-    console.log(`=== 총 가격: ${total}원 ===`);
+    console.log(`=== 총 합계: ${total}원 ===`);
 };
 
 export { showSelectedProductList };
