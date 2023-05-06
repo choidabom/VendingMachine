@@ -43,9 +43,9 @@ export class DBConnection {
     };
 }
 
-
+// 기존 코드
 const db = new DBConnection();
-const transaction = async (sql: string) => {
+const queryTransaction = async (sql: string) => {
     const connection = await db.startTransaction();
     try {
         const [result, _] = await db.query(connection, sql);
@@ -59,4 +59,6 @@ const transaction = async (sql: string) => {
     }
 };
 
-export { db, transaction };
+
+
+export { db, queryTransaction };

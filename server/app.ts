@@ -1,5 +1,4 @@
 import bodyParser from "body-parser";
-import { transaction } from "./db/db";
 import express, { Request, Response } from "express";
 import { VendingMachineServer } from "./VendingMachineServer";
 import { ProductEntity } from "./entity/ProductEntity";
