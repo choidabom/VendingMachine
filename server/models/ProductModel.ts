@@ -1,4 +1,4 @@
-import { transaction } from "../db/db";
+import { queryTransaction } from "../db/db";
 import { ResourceEntity } from '../entity/ResourceEntity';
 import { VMResourceEntity } from './../entity/VMResourceEntity';
 import { ProductEntity } from "../../client/entity/ProductEntity";
@@ -8,7 +8,7 @@ async function baseProductFromDB() {
     const productsSQL = `
         SELECT * FROM product 
     `;
-    const products = await transaction(productsSQL);
+    const products = await queryTransaction(productsSQL);
     return products;
 }
 
@@ -26,7 +26,7 @@ async function accumulatingProductResource(vmID: number, products: Array<Product
                 ON pr.resource_id = vr.resource_id
                 WHERE vr.vm_id = ${vmID} AND pr.product_id = ${product.id}
             `;
-            const checkResource = await transaction(checkResourceSQL);
+            const checkResource = await queryTransaction(checkResourceSQL);
 
             // 자판기 내 재고 필요 수량(amount) 누적
             for (let resource of checkResource) {
@@ -51,7 +51,7 @@ async function checkingVMResource(vmID: number) {
         const vmResourceSQL = `
             SELECT resource_id, quantity FROM vm_resource WHERE vm_id = ${vmID} 
         `;
-        const vmResource: Array<VMResourceEntity> = await transaction(vmResourceSQL);
+        const vmResource: Array<VMResourceEntity> = await queryTransaction(vmResourceSQL);
         return vmResource;
     } catch (err) {
         console.error('Checking Vending Machine Resource is failed', err);

@@ -1,4 +1,4 @@
-import { transaction } from "../db/db";
+import { queryTransaction } from "../db/db";
 
 // 자판기 존재 여부
 async function checkingVMid(vmID: number) {
@@ -6,7 +6,7 @@ async function checkingVMid(vmID: number) {
         const checkVM = `
         SELECT * FROM vending_machine WHERE id=${vmID}
         `;
-        const checkingIDResult = await transaction(checkVM);
+        const checkingIDResult = await queryTransaction(checkVM);
         return checkingIDResult.length;
     } catch (err) {
         console.error('Checking Vending Machine id is failed', err);
@@ -23,7 +23,7 @@ async function addingDefaultResource(vmID: number) {
             WHERE NOT EXISTS (SELECT * FROM vm_resource
             WHERE vm_id = ${vmID} AND resource_id = default_resource.resource_id)
         `;
-        await transaction(checkingExist);
+        await queryTransaction(checkingExist);
     } catch (err) {
         console.error('Adding Default Resource is failed', err);
     }
@@ -36,7 +36,7 @@ async function insertVendingMachine(vmID: number) {
             INSERT INTO vending_machine (id, location)
             VALUES (${vmID}, "seoul")
         `;
-    await transaction(insertingVM);
+    await queryTransaction(insertingVM);
 };
 
 export { checkingVMid, addingDefaultResource, insertVendingMachine };
