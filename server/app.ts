@@ -1,11 +1,8 @@
 import bodyParser from "body-parser";
-import { transaction } from "./db/db";
 import express, { Request, Response } from "express";
-import { VendingMachineServer } from "./VendingMachineServer";
 import { ProductEntity } from "./entity/ProductEntity";
-import { checkLeftResource } from "./models/ResourceModel";
-import { addingOrder, priceSum } from "./models/OrderModel";
-import { payProductPrice } from "./controller/saleController";
+import { VendingMachineServer } from "./VendingMachineServer";
+import processOrderTransaction from "./controller/processOrderTransaction";
 
 const app = express();
 const PORT: number = 3000;
@@ -17,6 +14,7 @@ const vm = new VendingMachineServer();
 app.listen(PORT, () => {
     console.log(`Server started. Listen on port ${PORT}`);
 });
+
 
 // 자판기 가동 API
 app.get('/vending_machine/:vmID', async (req: Request, res: Response) => {
@@ -60,7 +58,6 @@ app.get('/vending_machine/:vmID/product', async (req: Request, res: Response) =>
 app.post('/vending_machine/:vmID/product/select', async (req: Request, res: Response) => {
     const vmID = parseInt(req.params.vmID.replace(/\D/g, ''), 10);
     const selectedIDs: Array<number> = req.body.selectedIDs;
-
     try {
         const getProducts = await vm.getProductsList(selectedIDs);
         if (await vm.checkResource(vmID, getProducts)) { // 재고 여유가 있는 경우
@@ -83,26 +80,8 @@ app.post('/vending_machine/:vmID/order', async (req: Request, res: Response) => 
     const inputMoney: number = req.body.inputMoney;
 
     try {
-        const totalPrice = await priceSum(selectedProducts); // 상품 총합
-        // 아래 필요한 로직들에서 취소 또는 에러가 났을 경우, rollback을 하게끔 구현해야한다. 
-        // 주문 정보 DB 생성 - 생성 여부에 따라 가격 결제 여부 판단
-        if (await addingOrder(vmID, selectedProducts, paymentMethod)) {
-
-            // 가격 결제 로직 
-            if (await payProductPrice(vmID, totalPrice, paymentMethod, inputMoney)) {
-                if (await vm.checkReduceResource(vmID, selectedProducts)) {
-                    console.log('Vending Machine 내 남은 자원 양: ', await checkLeftResource(vmID));
-                    res.status(200).send(`성공적으로 ${totalPrice}원이 결제되었습니다. ${inputMoney - totalPrice}원을 반환합니다.`);
-                } else {
-                    res.status(500).send('Failed to reduce resource');
-                }
-            } else {
-                res.status(500).send('Failed payment ');
-            }
-
-        } else {
-            res.status(500).send('Failed to add order.');
-        }
+        const result = await processOrderTransaction(vmID, selectedProducts, paymentMethod, inputMoney);
+        res.status(200).send(result);
     } catch (err) {
         console.log(err);
         res.status(500).send('Failed to pay for product.');

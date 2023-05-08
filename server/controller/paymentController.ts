@@ -1,15 +1,16 @@
+import { PoolConnection } from "mysql2/promise";
 import { checkLeftChange } from "./../models/ResourceModel";
 import { leftVMMoneyAfterPayment } from '../models/OrderModel';
 
 interface IPaymentService {
-    pay(vmID: number, priceSum: number, inputMoney: number): Promise<boolean>;
+    pay(vmID: number, priceSum: number, inputMoney: number, connection: PoolConnection): Promise<boolean>;
 }
 
 class CashPaymentService implements IPaymentService {
-    pay(vmID: number, priceSum: number, inputMoney: number): Promise<boolean> {
+    pay(vmID: number, priceSum: number, inputMoney: number, connection: PoolConnection): Promise<boolean> {
         return new Promise<boolean>(async (resolve, reject) => {
             const price: number = inputMoney;
-            let leftVMMoney: number = await checkLeftChange(vmID); // 자판기 잔액
+            let leftVMMoney: number = await checkLeftChange(vmID, connection); // 자판기 잔액
 
             if (isNaN(price) || price < priceSum) {
                 console.log("지불 금액이 부족하거나 올바르지 않습니다.");
@@ -22,7 +23,7 @@ class CashPaymentService implements IPaymentService {
                 if (leftVMMoney - returnChange >= 0 && returnChange >= 0) {
                     console.log(`현금 결제 : ${priceSum}원입니다. `);
                     console.log(`반환 금액 : ${returnChange}원입니다. `);
-                    if (await leftVMMoneyAfterPayment(vmID, leftVMMoney, returnChange)) {
+                    if (await leftVMMoneyAfterPayment(vmID, leftVMMoney, returnChange, connection)) {
                         resolve(true);
                     } else {
                         resolve(false);
@@ -40,7 +41,7 @@ class CashPaymentService implements IPaymentService {
 }
 
 class CardPaymentService implements IPaymentService {
-    pay(vmID: number, priceSum: number, inputMoney: number): Promise<boolean> {
+    pay(vmID: number, priceSum: number, inputMoney: number, connection: PoolConnection): Promise<boolean> {
 
         return new Promise<boolean>((resolve, reject) => {
             let leftCardMoney = inputMoney - priceSum;
@@ -62,21 +63,15 @@ class CardPaymentService implements IPaymentService {
     }
 }
 
-class CoinPaymentService implements IPaymentService {
-    pay(vmID: number, priceSum: number): Promise<boolean> {
-        throw new Error('Method not implemented.');
-    }
-}
 
-export type PAYMENT_TYPE = "card" | "cash" | "coin";
+export type PAYMENT_TYPE = "card" | "cash";
 
 export class PaymentController {
     supportPayments = {
         "card": new CardPaymentService(),
         "cash": new CashPaymentService(),
-        "coin": new CoinPaymentService(),
     };
-    pay(paymentType: PAYMENT_TYPE, vmID: number, priceSum: number, inputMoney: number): Promise<boolean> {
-        return this.supportPayments[paymentType].pay(vmID, priceSum, inputMoney);
+    pay(paymentType: PAYMENT_TYPE, vmID: number, priceSum: number, inputMoney: number, connection: PoolConnection): Promise<boolean> {
+        return this.supportPayments[paymentType].pay(vmID, priceSum, inputMoney, connection);
     }
 }
