@@ -1,4 +1,4 @@
-import { transaction } from "./db/db";
+import { queryTransaction } from "./db/db";
 import { ResourceEntity } from './entity/ResourceEntity';
 import { deductQuantity } from "./models/ResourceModel";
 import { VMResourceEntity } from './entity/VMResourceEntity';
@@ -90,7 +90,7 @@ export class VendingMachineServer {
         const getProductSQL = `
             SELECT * FROM product WHERE id = ${selectedNum}
         `;
-        const product = await transaction(getProductSQL);
+        const product = await queryTransaction(getProductSQL);
         products.push(product[0]);
         return products;
     };
@@ -103,7 +103,7 @@ export class VendingMachineServer {
             const getProductSQL = `
                 SELECT * FROM product WHERE id = ${id}
             `;
-            const product = await transaction(getProductSQL);
+            const product = await queryTransaction(getProductSQL);
             products.push(product[0]);
         }
         return products;

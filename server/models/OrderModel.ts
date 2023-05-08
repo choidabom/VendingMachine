@@ -1,4 +1,6 @@
+
 import { db } from "../db/db";
+import { PAYMENT_TYPE } from "../controller/paymentController";
 import { ProductEntity } from "../entity/ProductEntity";
 import { PoolConnection } from "mysql2/promise";
 
@@ -21,6 +23,7 @@ async function addingOrder(vmID: number, products: Array<ProductEntity>, payment
                 INSERT INTO orders (vm_id, product_id, payment_id)
                 VALUES (${vmID}, ${product.id}, ${paymentMethod});
             `;
+
             await db.query(connection, saveOrder);
         }
     } catch (error) {
@@ -42,6 +45,7 @@ async function leftVMMoneyAfterPayment(vmID: number, leftVMMoney: number, return
             WHERE vm_id = ${vmID} AND name = 'cash'
         `;
         await db.query(connection, leftChangeSQL);
+
     } catch {
         console.error('Failed to update left money in VM.');
         isOkay = false;
