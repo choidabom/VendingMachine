@@ -1,6 +1,8 @@
+
+import { db } from "../db/db";
 import { PAYMENT_TYPE } from "../controller/paymentController";
-import { queryTransaction } from "../db/db";
 import { ProductEntity } from "../entity/ProductEntity";
+import { PoolConnection } from "mysql2/promise";
 
 // 상품 총합 (OrderModel.ts에 없어도 되긴함. DB 사용 X)
 async function priceSum(selectedProduct: Array<ProductEntity>): Promise<number> {
@@ -13,7 +15,7 @@ async function priceSum(selectedProduct: Array<ProductEntity>): Promise<number> 
 
 
 // 주문 정보 DB 생성
-async function addingOrder(vmID: number, products: Array<ProductEntity>, paymentMethod: number): Promise<boolean> {
+async function addingOrder(vmID: number, products: Array<ProductEntity>, paymentMethod: number, connection: PoolConnection): Promise<boolean> {
     let isOkay: boolean = true;
     try {
         for (let product of products) {
@@ -21,7 +23,8 @@ async function addingOrder(vmID: number, products: Array<ProductEntity>, payment
                 INSERT INTO orders (vm_id, product_id, payment_id)
                 VALUES (${vmID}, ${product.id}, ${paymentMethod});
             `;
-            await queryTransaction(saveOrder);
+
+            await db.query(connection, saveOrder);
         }
     } catch (error) {
         console.error('Failed to add order in DB.');
@@ -32,7 +35,7 @@ async function addingOrder(vmID: number, products: Array<ProductEntity>, payment
 
 
 // 결제 후, 잔액 DB(vm_resource 테이블)에 저장 
-async function leftVMMoneyAfterPayment(vmID: number, leftVMMoney: number, returnChange: number): Promise<boolean> {
+async function leftVMMoneyAfterPayment(vmID: number, leftVMMoney: number, returnChange: number, connection: PoolConnection): Promise<boolean> {
     let isOkay: boolean = true;
     try {
         const leftChange = leftVMMoney - returnChange;
@@ -41,7 +44,8 @@ async function leftVMMoneyAfterPayment(vmID: number, leftVMMoney: number, return
             SET quantity = ${leftChange}
             WHERE vm_id = ${vmID} AND name = 'cash'
         `;
-        await queryTransaction(leftChangeSQL);
+        await db.query(connection, leftChangeSQL);
+
     } catch {
         console.error('Failed to update left money in VM.');
         isOkay = false;

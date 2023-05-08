@@ -5,6 +5,7 @@ import { VMResourceEntity } from './entity/VMResourceEntity';
 import { ProductEntity } from "../client/entity/ProductEntity";
 import { checkingVMid, addingDefaultResource, insertVendingMachine } from "./models/VendingMachineModel";
 import { accumulatingProductResource, baseProductFromDB, checkingVMResource } from "./models/ProductModel";
+import { PoolConnection } from "mysql2/promise";
 
 // 자판기 클래스 정의
 export class VendingMachineServer {
@@ -110,7 +111,7 @@ export class VendingMachineServer {
 
 
     // 누적 자원 필요 수량 정보와 vm내 자원 수량 정보 조회
-    async checkReduceResource(vmID: number, products: Array<ProductEntity>): Promise<boolean> {
+    async checkReduceResource(vmID: number, products: Array<ProductEntity>, connection: PoolConnection): Promise<boolean> {
         // 1. 누적 자원 필요 수량 정보
         const accumulateResource = await accumulatingProductResource(vmID, products);
         if (!accumulateResource) {
@@ -122,19 +123,19 @@ export class VendingMachineServer {
         if (!vmResource) {
             throw new Error(`Failed to get resource for vending machine ${vmID}`);
         }
-        return this.reduceResource(vmID, accumulateResource, vmResource);
+        return this.reduceResource(vmID, accumulateResource, vmResource, connection);
     };
 
 
 
     // 자판기 내 resource 양(vmResource)에서 누적 재고 필요 수량(accumulateResource) 차감
-    async reduceResource(vmID: number, accumulateResource: Array<ResourceEntity>, vmResource: Array<VMResourceEntity>): Promise<boolean> {
+    async reduceResource(vmID: number, accumulateResource: Array<ResourceEntity>, vmResource: Array<VMResourceEntity>, connection: PoolConnection): Promise<boolean> {
         let isAvailable = true;
         for (let i = 0; i < accumulateResource.length; i++) {
             let resourceID = vmResource[i].resource_id;
             let leftResource = vmResource[i].quantity - accumulateResource[i].amount;
             if (leftResource >= 0) {
-                await deductQuantity(vmID, resourceID, leftResource);
+                await deductQuantity(vmID, resourceID, leftResource, connection);
                 // console.log(`재료 ${vmResource[i].resource_id}: 자판기 내 resource 양 ${vmResource[i].quantity} - 재고 필요 수량 ${accumulateResource[i].amount} = 자판기 내 남은 재고 양 ${leftResource}`);
             } else {
                 isAvailable = false;
