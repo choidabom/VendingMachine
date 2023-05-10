@@ -1,4 +1,5 @@
 import bodyParser from "body-parser";
+import cors from "cors";
 import express, { Request, Response } from "express";
 import { ProductEntity } from "./entity/ProductEntity";
 import { VendingMachineServer } from "./VendingMachineServer";
@@ -6,7 +7,8 @@ import processOrderTransaction from "./controller/processOrderTransaction";
 
 const app = express();
 const PORT: number = 3000;
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(cors());
 
 const vm = new VendingMachineServer();
 
