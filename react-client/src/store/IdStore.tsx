@@ -1,7 +1,7 @@
 import create from "zustand";
 
 interface ID {
-    id: number,
+    id: number;
     setId: (id: number) => void;
 }
 

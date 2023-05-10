@@ -1,4 +1,5 @@
 import create from "zustand";
+
 interface totalPrice {
     totalPrice: number;
     setTotalPrice: (totalPrice: number) => void;
