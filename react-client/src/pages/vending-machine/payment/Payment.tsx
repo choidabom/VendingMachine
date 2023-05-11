@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { API_URL } from '../../../components/Config';
-import vmIDStore from '../../../store/vmIDStore';
 import { ProductEntity } from '../../../entity/ProductEntity';
 import { Input } from '@mui/material';
 
-const Payment = (props: { totalPrice: number, selectedProducts: Array<ProductEntity>; }) => {
-    const { vmID } = vmIDStore();
+const Payment = (props: { vmID: number, totalPrice: number, selectedProducts: Array<ProductEntity>; }) => {
+    const vmID = props.vmID;
     const totalPrice = props.totalPrice;
     const selectedProducts = props.selectedProducts;
     const [paymentMethod, setPaymentMethod] = useState<number>(0);

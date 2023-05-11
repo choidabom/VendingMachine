@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
 import AvailableProduct from './vending-machine/product/AvailableProduct';
 import { VMContainer } from './VendingMachine.style';
 
 const VendingMachine = () => {
-    console.log('VendingMachine 확인');
+    const { vmID } = useParams();
+    console.log('Vending Machine 확인');
+
     return (
         <>
             <VMContainer>
-                <AvailableProduct />
+                <AvailableProduct vmID={Number(vmID)} />
             </VMContainer>
         </>
     );

@@ -4,26 +4,25 @@ import { Button, Container, List, ListItem } from "@mui/material";
 import { ProductEntity } from "../../../entity/ProductEntity";
 import { API_URL } from "../../../components/Config";
 import { ProductContainer } from "./AvailableProduct.style";
-import vmIDStore from '../../../store/vmIDStore';
 import Payment from '../payment/Payment';
 
-const AvailableProduct = () => {
+const AvailableProduct = (props: { vmID: number; }) => {
+    const vmID = props.vmID;
     const navigate = useNavigate();
-    const { vmID } = vmIDStore();
     const [availableProducts, setAvailableProducts] = useState<Array<ProductEntity>>([]);
     const [selectedProducts, setSelectedProducts] = useState<Array<ProductEntity>>([]);
     const [completeSelect, setCompleteSelect] = useState<Array<ProductEntity>>([]);
 
-
     useEffect(() => {
         if (vmID) {
-            fetchAvailableProducts(); // 실행
+            fetchAvailableProducts(); // 판매 가능 상품
         } else {
             navigate('/'); // vmID가 없으면 홈으로 이동
         }
-    }, [vmID]); // vmID가 변경될 때만 실행
+    }, [vmID]);
 
-    // 판매 가능 상품 GET
+
+    // Vending Machine 내 판매 가능 상품 GET
     const fetchAvailableProducts = async () => {
         try {
             const url = `${API_URL}/:${vmID}/product`;
@@ -194,7 +193,7 @@ const AvailableProduct = () => {
 
             </Container>
             <Container>
-                <Payment totalPrice={totalPrice} selectedProducts={completeSelect} />
+                <Payment vmID={vmID} totalPrice={totalPrice} selectedProducts={completeSelect} />
             </Container>
         </>
     );

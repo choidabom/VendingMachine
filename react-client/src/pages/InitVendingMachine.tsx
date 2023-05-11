@@ -3,13 +3,12 @@ import { Input, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../components/Config";
 import { InitVMContainer } from "./InitVendingMachine.style";
-import vmIDStore from "../store/vmIDStore";
 
 const InitVendingMachine = () => {
-    const { vmID, setVMId } = vmIDStore();
+    const [vmID, setVMId] = useState<number>(0);
     const navigate = useNavigate();
 
-    // VendingMachine ID 변화 함수 
+    // VendingMachine ID 체크 함수 
     const handleIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = event.target.value;
         const isNumeric = /^\d+$/.test(inputValue);
@@ -17,9 +16,9 @@ const InitVendingMachine = () => {
     };
 
     // VendingMachine Init 함수
-    const handleGetInitClick = async () => {
+    const handleVMInit = async () => {
         if (!vmID) {
-            alert("Input Vending Machine ID");
+            alert("자판기 ID를 입력하세요 !");
             return;
         }
         try {
@@ -30,8 +29,8 @@ const InitVendingMachine = () => {
             const response = await fetch(url, requestOptions);
             if (response.ok) {
                 const data = await response.text();
-                console.log(data);
-                navigate(`/vm`);
+                console.log('handleVMInit', data);
+                navigate(`/vm/${vmID}`);
             } else {
                 throw new Error('Network response was not ok.');
             }
@@ -39,7 +38,6 @@ const InitVendingMachine = () => {
             console.log(error);
         }
     };
-
 
     return (
         <>
@@ -51,7 +49,7 @@ const InitVendingMachine = () => {
                 />
                 <button style={{
                     color: "white", width: "80px", height: "40px", padding: "10px 10px", margin: "5px"
-                }} onClick={handleGetInitClick}>Run VM</button>
+                }} onClick={handleVMInit}>Run VM</button>
             </InitVMContainer>
         </>
     );
