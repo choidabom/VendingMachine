@@ -1,14 +1,14 @@
-import create from "zustand";
+import { create } from "zustand";
 
-interface totalPrice {
+interface totalPriceState {
     totalPrice: number;
-    setTotalPrice: (totalPrice: number) => void;
+    setTotalPrice: (price: number) => void;
 }
 
-const TotalPriceStore = create<totalPrice>((set) => ({
+const TotalPriceStore = create<totalPriceState>((set) => ({
     totalPrice: 0,
-    setTotalPrice: (totalPrice) => {
-        set((state) => ({ totalPrice: totalPrice }));
+    setTotalPrice: (price: number) => {
+        set({ totalPrice: price });
     }
 }));
 
