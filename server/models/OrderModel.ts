@@ -1,6 +1,4 @@
-
 import { db } from "../db/db";
-import { PAYMENT_TYPE } from "../controller/paymentController";
 import { ProductEntity } from "../entity/ProductEntity";
 import { PoolConnection } from "mysql2/promise";
 

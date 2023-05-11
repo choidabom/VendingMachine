@@ -66,8 +66,8 @@ app.post('/vending_machine/:vmID/product/select', async (req: Request, res: Resp
         } else { // 재고 여유가 없는 경우 
             res.status(500).send('Selected is not working or Resource is not enough.');
         }
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Internal Server Error" }); // 500: Internal Server Error
     }
 });

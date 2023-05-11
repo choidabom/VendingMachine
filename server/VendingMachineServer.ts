@@ -3,7 +3,7 @@ import { ResourceEntity } from './entity/ResourceEntity';
 import { deductQuantity } from "./models/ResourceModel";
 import { VMResourceEntity } from './entity/VMResourceEntity';
 import { ProductEntity } from "../client/entity/ProductEntity";
-import { checkingVMid, addingDefaultResource, insertVendingMachine } from "./models/VendingMachineModel";
+import { checkingVMId, addingDefaultResource, insertVendingMachine } from "./models/VendingMachineModel";
 import { accumulatingProductResource, baseProductFromDB, checkingVMResource } from "./models/ProductModel";
 import { PoolConnection } from "mysql2/promise";
 
@@ -18,7 +18,7 @@ export class VendingMachineServer {
     async initializeVendingMachine(vmID: number): Promise<boolean> {
         try {
             // 1. vending machine의 존재여부 판단
-            if (!await checkingVMid(vmID)) {
+            if (!await checkingVMId(vmID)) {
                 insertVendingMachine(vmID);
             }
             // 2. default resource의 목록을 조회하면서, vm_resource에 없는 resource 추가
@@ -39,6 +39,7 @@ export class VendingMachineServer {
             return baseProducts;
         }
     }
+
 
     // 자판기 판매 가능 확인 함수 (기준 - 기본 제품 1개씩은 판매 가능)
     async isAvailableProducts(vmID: number, products: Array<ProductEntity>): Promise<boolean> {
@@ -84,6 +85,7 @@ export class VendingMachineServer {
         return isAvailable;
     }
 
+
     // 선택된 제품 반환 함수 (하나의 제품만 가능하다는 가정하에)
     async getProductList(selectedNum: number): Promise<Array<ProductEntity>> {
         let products: Array<ProductEntity> = [];
@@ -125,7 +127,6 @@ export class VendingMachineServer {
         }
         return this.reduceResource(vmID, accumulateResource, vmResource, connection);
     };
-
 
 
     // 자판기 내 resource 양(vmResource)에서 누적 재고 필요 수량(accumulateResource) 차감
