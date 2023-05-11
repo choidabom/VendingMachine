@@ -121,7 +121,7 @@ class VendingMachineClient {
                     return response.text();
                 })
                 .then((result: any) => {
-                    // console.log('selected API result:', JSON.parse(result));
+                    console.log('selected API result:', JSON.parse(result));
                     resolve(JSON.parse(result));
                 })
                 .catch((error: any) => {
@@ -214,6 +214,7 @@ class VendingMachineClient {
     async sales() {
         const products = await this.getAvailableProducts();
         const selectedIDs: Array<number> = await this.selectProducts(products);
+        console.log(selectedIDs);
         const selectedProducts: Array<ProductEntity> = await this.selected(selectedIDs);
         const total = await showSelectedProductTotal(selectedProducts);
         if (selectedProducts.length > 0) {

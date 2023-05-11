@@ -1,3 +1,4 @@
+import cors from "cors";
 import bodyParser from "body-parser";
 import express, { Request, Response } from "express";
 import { ProductEntity } from "./entity/ProductEntity";
@@ -6,8 +7,8 @@ import processOrderTransaction from "./controller/processOrderTransaction";
 
 const app = express();
 const PORT: number = 3000;
+app.use(cors());
 app.use(bodyParser.json());
-
 const vm = new VendingMachineServer();
 
 // 서버 시작
@@ -59,7 +60,7 @@ app.post('/vending_machine/:vmID/product/select', async (req: Request, res: Resp
     const vmID = parseInt(req.params.vmID.replace(/\D/g, ''), 10);
     const selectedIDs: Array<number> = req.body.selectedIDs;
     try {
-        const getProducts = await vm.getProductsList(selectedIDs);
+        const getProducts: Array<ProductEntity> = await vm.getProductsList(selectedIDs);
         if (await vm.checkResource(vmID, getProducts)) { // 재고 여유가 있는 경우
             res.status(200).json(getProducts);
         } else { // 재고 여유가 없는 경우 
