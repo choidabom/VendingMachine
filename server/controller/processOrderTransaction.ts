@@ -30,7 +30,9 @@ const processOrderTransaction = async (vmID: number, products: Array<ProductEnti
 
         // 모든 작업이 성공적으로 완료됐으므로 트랜잭션을 커밋합니다.
         await db.commitTransaction(connection);
-        return `성공적으로 ${totalPrice}원이 결제되었습니다. ${inputMoney - totalPrice}원을 반환합니다.`;
+        return inputMoney - totalPrice;
+
+        // return `성공적으로 ${totalPrice}원이 결제되었습니다. ${inputMoney - totalPrice}원을 반환합니다.`;
     } catch (err) {
         await db.rollbackTransaction(connection);
         console.log("Transaction rolled back due to error:", err);

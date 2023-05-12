@@ -21,7 +21,6 @@ async function addingOrder(vmID: number, products: Array<ProductEntity>, payment
                 INSERT INTO orders (vm_id, product_id, payment_id)
                 VALUES (${vmID}, ${product.id}, ${paymentMethod});
             `;
-
             await db.query(connection, saveOrder);
         }
     } catch (error) {

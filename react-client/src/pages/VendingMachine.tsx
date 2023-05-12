@@ -1,14 +1,15 @@
 import { useParams } from "react-router-dom";
-import AvailableProduct from './vending-machine/product/AvailableProduct';
 import { VMContainer } from './VendingMachine.style';
+import PayMoneyLogic from "./vending-machine/payment/PayMoneyLogic";
+import AvailableProduct from './vending-machine/product/AvailableProduct';
 
 const VendingMachine = () => {
     const { vmID } = useParams();
-    console.log('Vending Machine 확인');
 
     return (
         <>
             <VMContainer>
+                <PayMoneyLogic />
                 <AvailableProduct vmID={Number(vmID)} />
             </VMContainer>
         </>

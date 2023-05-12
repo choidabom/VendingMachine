@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Button, Container, List, ListItem } from "@mui/material";
+import { Container, ListItem } from "@mui/material";
 import { ProductEntity } from "../../../entity/ProductEntity";
 import { API_URL } from "../../../components/Config";
 import { ProductContainer } from "./AvailableProduct.style";
-import Payment from '../payment/Payment';
+import PaymentTransactionLogic from '../payment/PaymentTransactionLogic';
+import ProductionActionButton from './button/ProductionActionButton';
+import SaveMoneyStore from '../../../store/SaveMoneyStore';
 
 const AvailableProduct = (props: { vmID: number; }) => {
     const vmID = props.vmID;
     const navigate = useNavigate();
+    const { saveMoney } = SaveMoneyStore();
     const [availableProducts, setAvailableProducts] = useState<Array<ProductEntity>>([]);
     const [selectedProducts, setSelectedProducts] = useState<Array<ProductEntity>>([]);
     const [completeSelect, setCompleteSelect] = useState<Array<ProductEntity>>([]);
@@ -45,6 +48,10 @@ const AvailableProduct = (props: { vmID: number; }) => {
 
     // 선택 상품 추가
     const handleSelectProduct = (product: ProductEntity) => {
+        if (saveMoney === 0) {
+            alert("상품 선택 전, 지불 방법을 택해주세요.");
+            return;
+        }
         setSelectedProducts(prevProducts => {
             const updatedProducts = [...prevProducts];
             const existingProduct = updatedProducts.find(p => p.id === product.id);
@@ -127,74 +134,54 @@ const AvailableProduct = (props: { vmID: number; }) => {
         }, 0);
         return total;
     };
-    const totalPrice = useMemo(() => getTotalPrice(), [selectedProducts]);
-    console.log('AvailableProduct 확인');
-
+    const selectedTotalPrice = useMemo(() => getTotalPrice(), [selectedProducts]);
 
     return (
         <>
             <Container>
-                <h3>Vending Machine ID {vmID}</h3>
-                <h3>Available Products </h3>
+                <p>상품을 둘러보고, 원하는 것을 골라보세요!</p>
                 {availableProducts && (
-                    <List >
+                    <>
                         {availableProducts.map(product => (
                             <ProductContainer key={product.id}>
                                 <ListItem >
-                                    <div style={{ display: 'flex' }}>
-                                        <p style={{ marginRight: '8px', width: "200px" }}>
-                                            [{product.id}] {product.name} {product.price}won
-                                        </p>
-                                    </div>
-                                    <div style={{ display: 'flex', width: "100px" }}>
-                                        <button style={{
-                                            color: "white", width: "40px", height: "40px", padding: "10px 10px", margin: "5px"
-                                        }} onClick={() => handleSelectProduct(product)}>﹢</button>
-                                        <button style={{
-                                            color: "white", width: "40px", height: "40px", padding: "10px 10px", margin: "5px"
-                                        }} onClick={() => handleRemoveProduct(product)}>﹣</button>
-                                    </div>
-                                    <div style={{ display: 'flex', width: "30px" }}>
-                                        <p>{selectedProducts.find(p => p.id === product.id)?.quantity || 0}</p>
-                                    </div>
+                                    <p style={{ marginRight: '8px', width: "200px" }}>
+                                        {product.id}. {product.name} {product.price}won
+                                    </p>
+                                    <ProductionActionButton value="+" product={product} handleProduct={handleSelectProduct} />
                                 </ListItem>
                             </ProductContainer>
                         ))}
-                        <div style={{ display: 'flex' }}>
-                            <button style={{
-                                marginLeft: "auto",
-                                color: "white", width: "80px", height: "40px", padding: "10px 10px", margin: "5px"
-                            }} onClick={handleCompleteSelect}>선택완료</button>
-                        </div>
-                    </List>
+                        {/* <button style={{
+                            marginLeft: "auto",
+                            color: "white", width: "80px", height: "40px", padding: "10px 10px", margin: "5px"
+                        }} onClick={handleCompleteSelect}>선택완료</button> */}
+                    </>
                 )}
             </Container >
             <Container>
-                <h3>Selected Product</h3>
-                <h3>Total Price: {totalPrice}won</h3>
+                <p>Total Price: {selectedTotalPrice}won</p>
                 {selectedProducts.length > 0 ? (
-                    <List>
+                    <>
                         {selectedProducts.map(product => (
                             <ListItem key={product.id}>
                                 <div style={{ display: 'flex' }}>
                                     <p style={{ marginRight: '8px', width: "200px" }}>
-                                        [{product.id}] {product.name} {product.price}won
+                                        {product.id}. {product.name} {product.price}won
                                     </p>
                                 </div>
                                 <div style={{ display: 'flex', width: "30px" }}>
                                     <p>{product.quantity}</p>
                                 </div>
+                                <ProductionActionButton value="-" product={product} handleProduct={handleRemoveProduct} />
                             </ListItem>
                         ))}
-                    </List>
+                    </>
                 ) : (
                     <p>No products selected.</p>
                 )}
-
             </Container>
-            <Container>
-                <Payment vmID={vmID} totalPrice={totalPrice} selectedProducts={completeSelect} />
-            </Container>
+            <PaymentTransactionLogic vmID={vmID} totalPrice={selectedTotalPrice} selectedProducts={selectedProducts} />
         </>
     );
 };

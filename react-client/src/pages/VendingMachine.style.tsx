@@ -1,8 +1,7 @@
 import styled from "styled-components";
 
 const VMContainer = styled.div`
-    display: flex;  
-
+    display: flex;
 `;
 
 export { VMContainer };
