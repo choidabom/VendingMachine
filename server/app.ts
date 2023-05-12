@@ -81,8 +81,9 @@ app.post('/vending_machine/:vmID/order', async (req: Request, res: Response) => 
     const inputMoney: number = req.body.inputMoney;
 
     try {
+        // result = inputMoney - totalPrice = 반환금
         const result = await processOrderTransaction(vmID, selectedProducts, paymentMethod, inputMoney);
-        res.status(200).send(result);
+        res.status(200).send(`${result}`);
     } catch (err) {
         console.log(err);
         res.status(500).send('Failed to pay for product.');
