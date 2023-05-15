@@ -10,17 +10,21 @@ const vm = new VendingMachineServer();
 const processOrderTransaction = async (vmID: number, products: Array<ProductEntity>, paymentMethod: number, inputMoney: number) => {
     const connection = await db.startTransaction();
     try {
-        const totalPrice = await priceSum(products); // 상품 총합
+        // 상품 총합
+        const totalPrice = await priceSum(products);
 
         // 1. 주문 정보 DB 생성
         if (await addingOrder(vmID, products, paymentMethod, connection)) {
 
             // 2. 가격 결제 로직
             if (await payProductPrice(vmID, totalPrice, paymentMethod, inputMoney, connection)) {
-                // 3. 재료 차감 로직
+
+                // 3. 재료 차감 로직 
                 if (await vm.checkReduceResource(vmID, products, connection)) {
+
                     const leftResourceResult = await checkLeftResource(vmID, connection);
                     console.log('Vending Machine 내 남은 자원 양: ', leftResourceResult[0]);
+
                 } else
                     return `Failed to reduce resource for vending machine ${vmID}`;
             } else
