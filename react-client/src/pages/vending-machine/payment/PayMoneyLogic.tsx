@@ -1,9 +1,10 @@
 import { Container, Input } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PaymentMethodButton from "./PaymentMethodButton";
 import SaveMoneyStore from "../../../store/SaveMoneyStore";
 import InputMoneyComponent from "./InputMoneyComponent";
 import PaymentMethodStore from "../../../store/SelectedPaymentMethod";
+import { RightContainer } from "../../VendingMachine.style";
 
 const PayMoneyLogic = () => {
     const { saveMoney, setSaveMoney } = SaveMoneyStore();
@@ -18,12 +19,19 @@ const PayMoneyLogic = () => {
     };
 
     return (
-        <Container style={{ maxWidth: "320px" }}>
-            <p>자판기를 이용하시겠습니까? <br /> 지불 방법을 선택해주세요!</p>
-            <PaymentMethodButton paymentNum={1} handlePaymentMethod={handlePaymentMethod} />
-            <PaymentMethodButton paymentNum={2} handlePaymentMethod={handlePaymentMethod} />
-            {paymentMethod ? <InputMoneyComponent paymentMethod={paymentMethod} /> : null}
-        </Container >
+        <>
+            <Container>
+                <p>자판기를 이용하시겠습니까? <br /> 지불 방법을 선택해주세요!</p>
+                <PaymentMethodButton paymentNum={1} handlePaymentMethod={handlePaymentMethod} />
+                <PaymentMethodButton paymentNum={2} handlePaymentMethod={handlePaymentMethod} />
+            </Container >
+            {paymentMethod ? (
+                <Container>
+                    <InputMoneyComponent paymentMethod={paymentMethod} />
+                </Container>
+            ) : null}
+        </>
+
     );
 };
 
