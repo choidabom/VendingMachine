@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "@mui/material";
 import SaveMoneyStore from "../../../store/SaveMoneyStore";
+import SelectedMoneyStore from "../../../store/SelectedMoneyStore";
 
 interface InputMoneyProps {
     paymentMethod: number;
@@ -10,6 +11,7 @@ const InputMoneyComponent: React.FC<InputMoneyProps> = ({ paymentMethod }) => {
     const paymentText = paymentMethod === 1 ? "입금액을 입력하세요: " : "카드를 넣어주세요: ";
     const [inputMoney, setInputMoney] = useState<number>(0);
     const { saveMoney, setSaveMoney } = SaveMoneyStore();
+    const { selectedMoney } = SelectedMoneyStore();
 
     // 자판기 돈 입금 
     const handleInputMoneyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +21,11 @@ const InputMoneyComponent: React.FC<InputMoneyProps> = ({ paymentMethod }) => {
             alert("잘못된 입력입니다. 다시 입력해주세요.");
             return;
         }
+        if (money < selectedMoney) {
+            alert("입금액이 부족합니다. 다시 입력해주세요.");
+            return;
+        }
+
         setInputMoney(money);
     };
 
@@ -54,10 +61,14 @@ const InputMoneyComponent: React.FC<InputMoneyProps> = ({ paymentMethod }) => {
             <p>{paymentText}</p>
             {paymentMethod === 1 ?
                 <>
-                    {moneyInput()}
-                    {saveInputMoney()}
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        {moneyInput()}
+                        {saveInputMoney()}
+                    </div>
                     <p>입금액: {saveMoney}원</p>
-                </> : <div>확인되었습니다!
+                </> :
+                <div>
+                    확인되었습니다!
                     <p>카드 잔액: {saveMoney}원</p>
                 </div>}
         </>

@@ -6,7 +6,7 @@ import { PoolConnection } from "mysql2/promise";
 async function priceSum(selectedProduct: Array<ProductEntity>): Promise<number> {
     let priceSum: number = 0;
     for (let product of selectedProduct) {
-        priceSum += product.price;
+        priceSum += product.price * product.quantity;
     }
     return priceSum;
 }
@@ -17,11 +17,13 @@ async function addingOrder(vmID: number, products: Array<ProductEntity>, payment
     let isOkay: boolean = true;
     try {
         for (let product of products) {
-            const saveOrder = `
+            for (let i = 0; i < product.quantity; i++) {
+                const saveOrder = `
                 INSERT INTO orders (vm_id, product_id, payment_id)
                 VALUES (${vmID}, ${product.id}, ${paymentMethod});
             `;
-            await db.query(connection, saveOrder);
+                await db.query(connection, saveOrder);
+            }
         }
     } catch (error) {
         console.error('Failed to add order in DB.');
@@ -36,6 +38,7 @@ async function leftVMMoneyAfterPayment(vmID: number, leftVMMoney: number, return
     let isOkay: boolean = true;
     try {
         const leftChange = leftVMMoney - returnChange;
+        console.log('leftChange', leftChange);
         const leftChangeSQL = `
             UPDATE vm_resource
             SET quantity = ${leftChange}
