@@ -28,11 +28,29 @@ app.get('/vending_machine/:vmID', async (req: Request, res: Response) => {
         if (completeInit) {
             res.status(200).send(`Vending machine [${vmID}] reset completed`);
         } else {
-            res.status(500).send(`This vending machine can't available.`);
+            res.status(500).send(`자판기 ${vmID}를 가동할 수 없습니다.`);
         }
     } catch (err) {
         console.error(err);
         res.status(500).send('Failed to start vending machine.');
+    }
+});
+
+
+// 상품 선택할 때마다, 제품 재고 가능 여부 확인
+app.post('/vending_machine/:vmID/checkAvailability', async (req: Request, res: Response) => {
+    const vmID: number = parseInt(req.params.vmID.replace(/\D/g, ''), 10);
+    const selectedProducts: Array<ProductEntity> = req.body.selectedProducts;
+    try {
+        const checkAvailable = await vm.checkProductAvailability(vmID, selectedProducts);
+        if (checkAvailable) {
+            res.status(200).send(true);
+        } else {
+            res.status(500).send(false);
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Failed to select product.');
     }
 });
 
@@ -46,11 +64,11 @@ app.get('/vending_machine/:vmID/product', async (req: Request, res: Response) =>
             res.status(200).json(products);
         } else {
             // 여기서 만약에 상품이 하나라도 안 되면 available 하지 않은 상태로 만들어버리기 때문에 고쳐야함 
-            res.status(500).send('Some products are not available.');
+            res.status(500).send('자판기 내 재고 부족으로 판매가 불가능합니다.');
         }
     } catch (err) {
         console.error(err);
-        res.status(500).send('Failed to check products.');
+        res.status(500).send('자판기 내 재고 부족으로 판매가 불가능합니다.');
     }
 });
 
@@ -82,6 +100,7 @@ app.post('/vending_machine/:vmID/order', async (req: Request, res: Response) => 
 
     try {
         // result = inputMoney - totalPrice = 반환금
+        console.log('selectedProducts in server', selectedProducts);
         const result = await processOrderTransaction(vmID, selectedProducts, paymentMethod, inputMoney);
         res.status(200).send(`${result}`);
     } catch (err) {

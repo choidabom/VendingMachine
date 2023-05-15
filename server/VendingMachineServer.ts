@@ -2,7 +2,7 @@ import { queryTransaction } from "./db/db";
 import { ResourceEntity } from './entity/ResourceEntity';
 import { deductQuantity } from "./models/ResourceModel";
 import { VMResourceEntity } from './entity/VMResourceEntity';
-import { ProductEntity } from "../client/entity/ProductEntity";
+import { ProductEntity } from "./entity/ProductEntity";
 import { checkingVMId, addingDefaultResource, insertVendingMachine } from "./models/VendingMachineModel";
 import { accumulatingProductResource, baseProductFromDB, checkingVMResource } from "./models/ProductModel";
 import { PoolConnection } from "mysql2/promise";
@@ -32,6 +32,17 @@ export class VendingMachineServer {
     };
 
 
+    // 선택한 상품들의 재고 여부 체크
+    async checkProductAvailability(vmID: number, selectedProducts: Array<ProductEntity>): Promise<boolean> {
+        try {
+            return await this.checkResource(vmID, selectedProducts);
+        } catch (err) {
+            console.log('Failed to check product availability:', err);
+            return false;
+        }
+    }
+
+
     // 자판기 ID를 파라미터로 받아 해당 자판기에 등록된 상품 목록 조회
     async getProductsByVendingMachineID(vmID: number) {
         let baseProducts: Array<ProductEntity> = await baseProductFromDB();
@@ -50,7 +61,7 @@ export class VendingMachineServer {
             }
         } else {
             isOkay = false;
-            console.log('판매가 불가능합니다.');
+            alert('판매가 불가능합니다.');
         }
         return isOkay;
     }
@@ -107,6 +118,12 @@ export class VendingMachineServer {
             `;
             const product = await queryTransaction(getProductSQL);
             products.push(product[0]);
+
+            for (let product of products) {
+                if (product) {
+                    product.quantity += 1;
+                }
+            }
         }
         return products;
     };
