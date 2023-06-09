@@ -4,17 +4,15 @@ import { Container, ListItem } from "@mui/material";
 import { ProductEntity } from "../../../entity/ProductEntity";
 import { API_URL } from "../../../components/Config";
 import { ProductContainer } from "./AvailableProduct.style";
-import PaymentTransactionLogic from '../payment/PaymentTransactionLogic';
+import PaymentTransactionLogic from '../payment/PaymentTransactionView';
 import ProductionActionButton from './button/ProductionActionButton';
 import SaveMoneyStore from '../../../store/SaveMoneyStore';
-import SelectedMoneyStore from '../../../store/SelectedMoneyStore';
 
 
 const AvailableProduct = (props: { vmID: number; }) => {
     const vmID = props.vmID;
     const navigate = useNavigate();
-    const { saveMoney } = SaveMoneyStore();
-    const { setSelectedMoney } = SelectedMoneyStore();
+    const { saveMoney, setSaveMoney } = SaveMoneyStore();
     const [availableProducts, setAvailableProducts] = useState<Array<ProductEntity>>([]);
     const [selectedProducts, setSelectedProducts] = useState<Array<ProductEntity>>([]);
 
@@ -25,14 +23,21 @@ const AvailableProduct = (props: { vmID: number; }) => {
             if (storedSelectedProducts) {
                 setSelectedProducts(JSON.parse(storedSelectedProducts));
             }
+            const storedSaveMoney = localStorage.getItem('saveMoney');
+            if (storedSaveMoney) {
+                setSaveMoney(JSON.parse(storedSaveMoney));
+            }
         } else {
             navigate('/'); // vmID가 없으면 홈으로 이동
         }
     }, [vmID]);
 
+
+    // 결제하기 버튼을 누르기 전에 선택된 상품들은 로컬스토리지에 저장
     useEffect(() => {
         localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
     }, [selectedProducts]);
+
 
     // Vending Machine 내 판매 가능 상품 GET
     const fetchAvailableProducts = async () => {

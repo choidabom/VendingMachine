@@ -1,13 +1,11 @@
 import { Container, Input } from "@mui/material";
-import { useEffect, useState } from "react";
 import PaymentMethodButton from "./PaymentMethodButton";
 import SaveMoneyStore from "../../../store/SaveMoneyStore";
 import InputMoneyComponent from "./InputMoneyComponent";
 import PaymentMethodStore from "../../../store/SelectedPaymentMethod";
-import { RightContainer } from "../../VendingMachine.style";
 
 const PayMoneyLogic = () => {
-    const { saveMoney, setSaveMoney } = SaveMoneyStore();
+    const { setSaveMoney } = SaveMoneyStore();
     const { paymentMethod, setPaymentMethod } = PaymentMethodStore();
 
     const handlePaymentMethod = (paymentNum: number) => {
