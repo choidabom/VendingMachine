@@ -22,7 +22,7 @@ const InitVendingMachine = () => {
             return;
         }
         try {
-            const url = `${API_URL}/:${vmID}`;
+            const url = `${API_URL}/${vmID}`;
             let requestOptions: RequestInit = {
                 method: "GET",
             };

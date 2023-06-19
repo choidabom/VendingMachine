@@ -51,8 +51,6 @@ const VendingMachine = () => {
                     <AvailableProduct vmID={Number(vmID)} />
                 </RightContainer>
             </VMContainer>
-
-
         </>
     );
 };

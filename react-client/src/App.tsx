@@ -9,7 +9,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path='/' element={<InitVendingMachine />} />
-                    <Route path='/vm/:vmID' element={<VendingMachine />} />
+                    <Route path='/vending_machine/:vmID' element={<VendingMachine />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>
