@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Container, ListItem } from "@mui/material";
 import { ProductEntity } from "../../../entity/ProductEntity";
-import { API_URL } from "../../../components/Config";
+import { API_URL } from "../../../Config";
 import { ProductContainer } from "./AvailableProduct.style";
 import PaymentTransactionLogic from '../payment/PaymentTransactionLogic';
 import ProductionActionButton from './button/ProductionActionButton';

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Input } from '@mui/material';
+import { Input, Button } from '@mui/material';
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../components/Config";
+import { API_URL } from "../Config";
 import { InitVMContainer } from "./InitVendingMachine.style";
 
 const InitVendingMachine = () => {
@@ -18,7 +18,7 @@ const InitVendingMachine = () => {
     // VendingMachine Init 함수
     const handleVMInit = async () => {
         if (!vmID) {
-            alert("자판기 ID를 입력하세요 !");
+            alert("자판기 ID를 입력하세요!");
             return;
         }
         try {
@@ -29,9 +29,11 @@ const InitVendingMachine = () => {
 
             const response = await fetch(url, requestOptions);
             if (response.ok) {
-                const data = await response.text();
-                console.log('handleVMInit', data);
-                navigate(`/vm/${vmID}`);
+                const data = await response.json();
+                console.log('data: ', data);
+                if (data) {
+                    navigate(`/vending_machine/${vmID}`);
+                }
             } else {
                 throw new Error('Network response was not ok.');
             }
@@ -42,33 +44,39 @@ const InitVendingMachine = () => {
 
     // 자판기 ID Input 태그
     const vmIDInput = () => {
-        return <Input
-            placeholder="자판기 ID를 입력하세요"
-            value={vmID}
-            onChange={handleIdChange}
-        />;
+        return (
+            <Input
+                placeholder="자판기 ID를 입력하세요"
+                value={vmID}
+                onChange={handleIdChange}
+            />
+        );
     };
 
     // 자판기 ID Input 버튼 태그
     const vmIDInputButton = () => {
-        return <button
-            style={{
-                color: "white",
-                width: "80px",
-                height: "40px",
-                padding: "10px 10px",
-                margin: "5px"
-            }} onClick={handleVMInit}
-        >Run VM</button>;
+        return (
+            <Button
+                variant="contained"
+                style={{
+                    color: "white",
+                    width: "80px",
+                    height: "40px",
+                    padding: "10px 10px",
+                    margin: "5px"
+                }}
+                onClick={handleVMInit}
+            >
+                Run VM
+            </Button>
+        );
     };
 
     return (
-        <>
-            <InitVMContainer>
-                {vmIDInput()}
-                {vmIDInputButton()}
-            </InitVMContainer>
-        </>
+        <InitVMContainer>
+            {vmIDInput()}
+            {vmIDInputButton()}
+        </InitVMContainer>
     );
 };
 

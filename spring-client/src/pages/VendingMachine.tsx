@@ -2,12 +2,11 @@ import { useParams } from "react-router-dom";
 import { LeftContainer, RightContainer, VMContainer } from './VendingMachine.style';
 import PayMoneyLogic from "./vending-machine/payment/PayMoneyLogic";
 import AvailableProduct from './vending-machine/product/AvailableProduct';
-import { API_URL } from "../components/Config";
 import { useEffect, useState } from "react";
+import { API_URL } from "../Config";
 
 const VendingMachine = () => {
     const { vmID } = useParams();
-
     useEffect(() => {
         if (vmID) {
             handleVMInit(); // 판매 가능 상품
@@ -23,20 +22,24 @@ const VendingMachine = () => {
         try {
             const url = `${API_URL}/${vmID}`;
             let requestOptions: RequestInit = {
+                headers: {
+                    Accept: "application/json",
+                },
                 method: "GET",
             };
+
             const response = await fetch(url, requestOptions);
             if (response.ok) {
-                const okMessage = await response.text();
-                console.log(okMessage);
+                const okMessage = await response.json();
+                console.log(okMessage.vmId);
             } else if (response.status === 500) {
-                const errorMessage = await response.text();
-                console.log(errorMessage);
+                const errorMessage = await response.json();
+                console.log("errorMessage: ", errorMessage);
             } else {
                 throw new Error('Network response was not ok.');
             }
         } catch (error) {
-            console.log(error);
+            console.log("error: ", error);
         }
     };
 
@@ -48,7 +51,7 @@ const VendingMachine = () => {
                     <PayMoneyLogic />
                 </LeftContainer>
                 <RightContainer>
-                    <AvailableProduct vmID={Number(vmID)} />
+                    {/* <AvailableProduct vmID={Number(vmID)} /> */}
                 </RightContainer>
             </VMContainer>
         </>

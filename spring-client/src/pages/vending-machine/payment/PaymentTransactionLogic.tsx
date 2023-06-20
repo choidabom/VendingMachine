@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { API_URL } from '../../../components/Config';
+import { API_URL } from '../../../Config';
 import { ProductEntity } from '../../../entity/ProductEntity';
 import SaveMoneyStore from '../../../store/SaveMoneyStore';
 import PaymentMethodStore from '../../../store/SelectedPaymentMethod';
