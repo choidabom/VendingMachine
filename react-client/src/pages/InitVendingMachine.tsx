@@ -31,7 +31,7 @@ const InitVendingMachine = () => {
             if (response.ok) {
                 const data = await response.text();
                 console.log('handleVMInit', data);
-                navigate(`/vm/${vmID}`);
+                navigate(`/vending_machine/${vmID}`);
             } else {
                 throw new Error('Network response was not ok.');
             }
