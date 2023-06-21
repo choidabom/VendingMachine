@@ -1,5 +1,6 @@
 package com.spring.vendingmachinespring.controller;
 
+import com.spring.vendingmachinespring.service.ResourceService;
 import com.spring.vendingmachinespring.service.VendingMachineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class VendingMachineController {
     private final VendingMachineService vendingMachineService;
+    private final ResourceService resourceService;
 
     // 자판기 가동 API
     @GetMapping("/{vmId}")
@@ -49,20 +51,38 @@ public class VendingMachineController {
         }
     }
 
+    // 상품 조회 API
+//    @GetMapping("{vmId}/product")
+//    public ResponseEntity<?> getProduct(@PathVariable Long vmId) {
+//        if (vmId <= 0) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
+//        }
+//        try {
+//            List<Product> products = vendingMachineService.getProductsByVMId(vmId);
+////            List<VMResource> totalVMResource = resourceService.checkTotalVMResource(vmId); // test 용
+//            if (!products.isEmpty()) {
+//                return ResponseEntity.ok(products);
+//            } else {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                        .body(null);
+//            }
+//        } catch (Exception e) {
+//            log.error("Failed to get product{}", vmId, e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(null);
+//        }
+//    }
 
-    // 상품 선택할 때마다, 제품 재고 가능 여부 확인
+//    // 상품 선택할 때마다, 제품 재고 가능 여부 확인
 //    @PostMapping("/{vmId}/checkAvailability")
 //    public ResponseEntity<?> checkProductAvailability(@PathVariable Long vmId, @RequestBody List<Product> selectedProducts) {
 //        try {
 //            boolean checkAvailable = vendingMachineService.checkProductAvailability(vmId, selectedProducts);
-//            if (checkAvailable) {
-//                return ResponseEntity.ok(true);
-//            } else {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-//            }
+//            return ResponseEntity.ok(checkAvailable);
 //        } catch (Exception e) {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
 //        }
 //    }
+
 
 }

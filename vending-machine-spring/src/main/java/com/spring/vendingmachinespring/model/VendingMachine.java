@@ -1,8 +1,12 @@
 package com.spring.vendingmachinespring.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,5 +18,13 @@ public class VendingMachine {
     private Long id;
     private String name;
     private String location;
+
+    @OneToMany(mappedBy = "vendingMachine")
+    @JsonBackReference
+    private List<Orders> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vendingMachine")
+    @JsonBackReference
+    private List<VMResource> vmResource = new ArrayList<>();
 
 }

@@ -1,60 +1,36 @@
-//package com.spring.vendingmachinespring.service;
-//
-//import com.spring.vendingmachinespring.model.Product;
-//import com.spring.vendingmachinespring.model.Resource;
-//import com.spring.vendingmachinespring.repository.DefaultResourceRepository;
-//import com.spring.vendingmachinespring.repository.VMResourceRepository;
-//import com.spring.vendingmachinespring.repository.VendingMachineRepository;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//@Slf4j
-//@Service
-//@RequiredArgsConstructor
-//public class ResourceService {
-//    private final VendingMachineRepository vendingMachineRepository;
-//    private final VMResourceRepository vmResourceRepository;
-//    private final DefaultResourceRepository defaultResourceRepository;
-//
-//    public List<Resource> accumulateProductResource(Long vmId, List<Product> products) {
-//        List<Resource> accumulateResource = new ArrayList<>();
-//
+package com.spring.vendingmachinespring.service;
+
+import com.spring.vendingmachinespring.repository.VMResourceRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ResourceService {
+    private final VMResourceRepository vmResourceRepository;
+
+//    // Vending Machine 내 총 자원(Total VMResource) 수량
+//    public List<VMResource> checkTotalVMResource(Long vmId) {
 //        try {
-//            for (Product product : products) {
-//                for (int i = 0; i < product.getQuantity(); i++) {
-//                    // Get the required resource quantity for each product
-//                    List<Object[]> checkResource = VMResourceRepository.findProductResourcedQuantity(vmId, product.getId());
-//
-//                    // Accumulate the required resource quantities in the vending machine
-//                    for (Object[] resource : checkResource) {
-//                        Long resourceId = (Long) resource[0];
-//                        Integer quantity = (Integer) resource[1];
-//                        Integer amount = (Integer) resource[2];
-//
-//                        Resource existingResource = accumulateResource.stream()
-//                                .filter(r -> r.getId().equals(resourceId))
-//                                .findFirst()
-//                                .orElse(null);
-//
-//                        if (existingResource == null) {
-//                            Resource newResource = new Resource();
-//                            newResource.setId(resourceId);
-//                            newResource.setAmount(amount);
-//                            accumulateResource.add(newResource);
-//                        } else {
-//                            existingResource.setAmount(existingResource.getAmount() + amount);
-//                        }
-//                    }
-//                }
-//            }
-//
-//            return accumulateResource;
+//            List<VMResource> totalVMResource = vmResourceRepository.findByVendingMachineId(vmId);
+//            log.info("totalVMResource {}", totalVMResource);
+//            return totalVMResource;
 //        } catch (Exception e) {
-//            throw new IllegalArgumentException("Accumulating product resource failed", e);
+//            log.error("Checking Vending Machine Resource failed", e);
+//            throw new ServiceException("Failed to check Vending Machine Resource");
 //        }
 //    }
-//}
+//
+//    // 필요 자원 수량 누적
+//    public List<VMResourceDTO> accumulateProductResource(Long vmId, List<Product> products) {
+//        List<VMResourceDTO> accumulateResource = new ArrayList<>();
+//        for (Product product : products) {
+//            // 각 상품별 필요 재고 수량 (amount)
+//            List<VMResourceDTO> calculateProductResourceAmount = vmResourceRepository.findByVendingMachineIdAndProductId(vmId, product.getId());
+//            log.info("calculateProductResourceAmount: {} ", calculateProductResourceAmount);
+//        }
+//        return accumulateResource;
+//    }
+}

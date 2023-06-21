@@ -1,13 +1,16 @@
 package com.spring.vendingmachinespring.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "vm_resource", catalog = "vending_machine")
+@ToString(of = {"id", "name", "quantity"})
 public class VMResource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +18,7 @@ public class VMResource {
 
     @ManyToOne
     @JoinColumn(name = "vm_id")
+    @JsonManagedReference
     private VendingMachine vendingMachine;
 
     @ManyToOne

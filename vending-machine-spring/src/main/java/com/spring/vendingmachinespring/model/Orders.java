@@ -1,5 +1,6 @@
 package com.spring.vendingmachinespring.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "vm_id")
+    @JsonManagedReference
     private VendingMachine vendingMachine;
 
     @ManyToOne
