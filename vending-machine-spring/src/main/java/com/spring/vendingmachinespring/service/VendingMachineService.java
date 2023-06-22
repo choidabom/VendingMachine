@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -67,20 +66,17 @@ public class VendingMachineService {
 
             if (!isExisting) {
                 // 자판기에 자원 추가
-                VMResource vmResource = new VMResource();
-                Optional<VendingMachine> vendingMachine = vendingMachineRepository.findById(vmId);
-                vendingMachine.ifPresent(machine -> {
-                    vmResource.setVendingMachine(machine);
-                    vmResource.setResource(defaultResource.getResource());
-                    vmResource.setName(defaultResource.getName());
-                    vmResource.setQuantity(defaultResource.getQuantity());
+                VMResource vmResource = VMResource.builder()
+                        .vendingMachine(vendingMachineRepository.findById(vmId).orElse(null))
+                        .resource(defaultResource.getResource())
+                        .name(defaultResource.getName())
+                        .quantity(defaultResource.getQuantity())
+                        .build();
 
-                    // 필요한 데이터베이스 조작 등의 로직을 수행
-                    // 예를 들어, vmResourceRepository 를 사용하여 자판기 자원을 저장하거나 업데이트할 수 있습니다.
-                    vmResourceRepository.save(vmResource);
-                });
+                // 필요한 데이터베이스 조작 등의 로직을 수행
+                // 예를 들어, vmResourceRepository 를 사용하여 자판기 자원을 저장하거나 업데이트할 수 있습니다.
+                vmResourceRepository.save(vmResource);
             }
         }
     }
-
 }
