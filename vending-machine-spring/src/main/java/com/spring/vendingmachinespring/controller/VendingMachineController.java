@@ -76,5 +76,23 @@ public class VendingMachineController {
         }
     }
 
+    // 상품 선택할 때마다, 제품 재고 가능 여부 확인 API
+    @PostMapping("{vmId}/checkAvailability")
+    public ResponseEntity<Boolean> checkProductAvailability(@PathVariable Long vmId, @RequestBody List<ProductDTO> selectedProducts) {
+        if (vmId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
+        }
+        try {
+            boolean isAvailable = vendingMachineService.checkAvailable(vmId, selectedProducts);
+            if (isAvailable) {
+                return ResponseEntity.ok(true);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            }
+        } catch (Exception e) {
+            log.error("Failed to select product.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

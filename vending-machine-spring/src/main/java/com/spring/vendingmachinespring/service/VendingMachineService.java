@@ -107,6 +107,12 @@ public class VendingMachineService {
         return availableProducts;
     }
 
+    // 상품 선택할 때마다, 제품 재고 가능 여부 확인 함수 - 판매 가능한 상품이 있으면 재고 있음!
+    public boolean checkAvailable(Long vmId, List<ProductDTO> selectedProducts) {
+        List<ProductDTO> availableProducts = checkProductResource(vmId, selectedProducts);
+        return !availableProducts.isEmpty();
+    }
+
     // 필요 자원 수량 누적 정보(accumulateResource)와 자판기 내 총 자원 수량 정보(totalVMResource) 비교해서
     // 판매 가능한 상품 리스트 반환
     private List<ProductDTO> checkProductResource(Long vmId, List<ProductDTO> productList) {
