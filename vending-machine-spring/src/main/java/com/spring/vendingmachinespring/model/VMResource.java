@@ -2,13 +2,16 @@ package com.spring.vendingmachinespring.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+// @Builder 사용 이후, @NoArgsConstructor, @AllArgsConstructor 없다면
+// 해당 오류가 발생 org.hibernate.InstantiationException: No default constructor for entity :
 @Table(name = "vm_resource", catalog = "vending_machine")
 @ToString(of = {"id", "name", "quantity"})
 public class VMResource {
@@ -17,15 +20,14 @@ public class VMResource {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "vm_id")
-    @JsonManagedReference
-    private VendingMachine vendingMachine;
-
-    @ManyToOne
     @JoinColumn(name = "resource_id")
     private Resource resource;
 
     private String name;
     private Long quantity;
 
+    @ManyToOne
+    @JoinColumn(name = "vm_id")
+    @JsonManagedReference
+    private VendingMachine vendingMachine;
 }

@@ -1,15 +1,16 @@
 package com.spring.vendingmachinespring.controller;
 
-import com.spring.vendingmachinespring.service.ResourceService;
 import com.spring.vendingmachinespring.service.VendingMachineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController // @RestController =  @Controller + @ResponseBody
@@ -18,71 +19,36 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class VendingMachineController {
     private final VendingMachineService vendingMachineService;
-    private final ResourceService resourceService;
 
     // 자판기 가동 API
     @GetMapping("/{vmId}")
-    public ResponseEntity<?> startVendingMachine(@PathVariable Long vmId) {
+    public ResponseEntity<Map<String, Object>> startVendingMachine(@PathVariable Long vmId) {
         if (vmId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
         }
+        Map<String, Object> response = new HashMap<>();
         try {
             boolean completeInit = vendingMachineService.initializeVendingMachine(vmId);
-            JSONObject json = new JSONObject(); // json 객체 생성
 
             if (completeInit) {
-                json.put("vmId", vmId);
+                response.put("vmId", vmId);
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(json.toString());
+                        .body(response);
             } else {
-                json.put("error", "Cannot start vending machine.");
+                response.put("error", "Cannot start vending machine.");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(json.toString());
+                        .body(response);
             }
         } catch (Exception e) {
             log.error("Failed to start Vending Machine {}", vmId, e);
-            JSONObject json = new JSONObject();
-            json.put("error", "Failed to start vending machine.");
+            response.put("error", "Failed to start vending machine.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(json.toString());
+                    .body(response);
         }
     }
-
-    // 상품 조회 API
-//    @GetMapping("{vmId}/product")
-//    public ResponseEntity<?> getProduct(@PathVariable Long vmId) {
-//        if (vmId <= 0) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
-//        }
-//        try {
-//            List<Product> products = vendingMachineService.getProductsByVMId(vmId);
-////            List<VMResource> totalVMResource = resourceService.checkTotalVMResource(vmId); // test 용
-//            if (!products.isEmpty()) {
-//                return ResponseEntity.ok(products);
-//            } else {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                        .body(null);
-//            }
-//        } catch (Exception e) {
-//            log.error("Failed to get product{}", vmId, e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(null);
-//        }
-//    }
-
-//    // 상품 선택할 때마다, 제품 재고 가능 여부 확인
-//    @PostMapping("/{vmId}/checkAvailability")
-//    public ResponseEntity<?> checkProductAvailability(@PathVariable Long vmId, @RequestBody List<Product> selectedProducts) {
-//        try {
-//            boolean checkAvailable = vendingMachineService.checkProductAvailability(vmId, selectedProducts);
-//            return ResponseEntity.ok(checkAvailable);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-//        }
-//    }
 
 
 }

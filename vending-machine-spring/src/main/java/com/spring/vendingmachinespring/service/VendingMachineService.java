@@ -27,6 +27,7 @@ public class VendingMachineService {
         try {
             // 1. 자판기 존재 여부 확인
             if (!vendingMachineRepository.existsById(vmId)) {
+                log.info(String.valueOf(vmId));
                 insertVendingMachine(vmId);
             }
             // 2. 기본 자원 목록을 조회하면서 자판기 자원에 없는 자원 추가
@@ -40,15 +41,18 @@ public class VendingMachineService {
 
     // 자판기 객체 DB 추가
     private void insertVendingMachine(Long vmId) {
-        VendingMachine vendingMachine = new VendingMachine();
-        vendingMachine.setId(vmId);
-        vendingMachine.setName("vmId" + vmId);
-        vendingMachine.setLocation("seoul");
+        VendingMachine vendingMachine = VendingMachine.builder()
+                .id(vmId)
+                .name("VM" + vmId)
+                .location("seoul")
+                .build();
+
+        // vendingMachine 객체를 vending_machine 테이블에 저장.
+        //이 메서드가 없다면 db에 저장되지 않음.
         vendingMachineRepository.save(vendingMachine);
     }
 
     // 자판기 resource 추가: default resource 의 목록을 조회하면서, vm_resource 에 없는 resource 추가
-    // 기본 자원을 자판기에 추가
     public void addingDefaultResource(Long vmId) {
         List<DefaultResource> defaultResources = defaultResourceRepository.findAll(); // 기본 자원 데이터 조회
         List<VMResource> existingResources = vmResourceRepository.findByVendingMachineId(vmId); // 이미 추가되어 있는 자원 조회
@@ -78,31 +82,5 @@ public class VendingMachineService {
             }
         }
     }
-
-    //
-//    // 누적 재고 필요 수량(accumulateResource)와 vm 내 총 자원 수량(totalVMResource) 비교
-//    public boolean checkProductResource(Long vmId, List<Product> productList) {
-//        // 1. 누적 자원 필요 수량 정보
-//        List<VMResourceDTO> accumulateResource = resourceService.accumulateProductResource(vmId, productList);
-//
-//        // 2. vm 내 자원 수량 정보
-//        List<VMResource> totalVMResource = resourceService.checkTotalVMResource(vmId);
-//
-//        return true;
-//    }
-//
-//
-    // 해당 자판기에 등록된 판매 가능한 상품 목록을 조회
-//    public List<Product> getProductsByVMId(Long vmId) {
-//        List<Product> productList = productRepository.findAll();
-//
-//        // 자판기 판매 가능 상품 확인 - 지금 현재로는 하나의 상품도 판매 불가능할 시 null 을 내뱉는다.
-////        if (!checkProductResource(vmId, productList)) {
-////            return null;
-////        }
-//        // 상품이 사용 가능한 경우에만 반환
-//        return productList;
-//    }
-
 
 }
