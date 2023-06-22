@@ -1,17 +1,13 @@
 package com.spring.vendingmachinespring.service;
 
-import com.spring.vendingmachinespring.model.DefaultResource;
-import com.spring.vendingmachinespring.model.VMResource;
-import com.spring.vendingmachinespring.model.VendingMachine;
-import com.spring.vendingmachinespring.repository.DefaultResourceRepository;
-import com.spring.vendingmachinespring.repository.ProductRepository;
-import com.spring.vendingmachinespring.repository.VMResourceRepository;
-import com.spring.vendingmachinespring.repository.VendingMachineRepository;
+import com.spring.vendingmachinespring.dto.ProductDTO;
+import com.spring.vendingmachinespring.model.*;
+import com.spring.vendingmachinespring.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -21,6 +17,7 @@ public class VendingMachineService {
     private final VMResourceRepository vmResourceRepository;
     private final DefaultResourceRepository defaultResourceRepository;
     private final ProductRepository productRepository;
+    private final ProductResourceRepository productResourceRepository;
 
     public boolean initializeVendingMachine(Long vmId) {
         try {
@@ -62,7 +59,6 @@ public class VendingMachineService {
 
             boolean isExisting = existingResources.stream()
                     .anyMatch(vmResource -> vmResource.getResource().getId().equals(resourceId));
-// null 인경우 고려
 
             if (!isExisting) {
                 // 자판기에 자원 추가
@@ -78,5 +74,87 @@ public class VendingMachineService {
                 vmResourceRepository.save(vmResource);
             }
         }
+    }
+
+    // 해당 자판기에 등록된 상품 중 판매 가능한 상품 목록 조회
+    public List<ProductDTO> getProductsByVMId(Long vmId) {
+        List<Product> productList = productRepository.findAll();
+
+        // 기준: 못 해도 두 개는 팔 수 있는 자판기 !
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for (Product product : productList) {
+            Long doubledQuantity = 2L;
+
+            ProductDTO productDTO = ProductDTO.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .price(Long.valueOf(product.getPrice()))
+                    .quantity(doubledQuantity)
+                    .build();
+
+            productDTOList.add(productDTO);
+            List<ProductResource> productResources = productResourceRepository.findByProductId(product.getId());
+            log.info("{}", productResources);
+
+        }
+        log.info(productDTOList.toString());
+
+        // checkProductResource : 판매 가능한 상품 리스트 반환
+        List<ProductDTO> availableProducts = checkProductResource(vmId, productDTOList);
+        if (availableProducts.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return availableProducts;
+    }
+
+    // 필요 자원 수량 누적 정보(accumulateResource)와 자판기 내 총 자원 수량 정보(totalVMResource) 비교해서
+    // 판매 가능한 상품 리스트 반환
+    private List<ProductDTO> checkProductResource(Long vmId, List<ProductDTO> productList) {
+        // 1. 필요 자원 수량 누적 정보
+        Map<Long, Long> accumulatedResource = new HashMap<>(); // 해시맵 자료구조: 키와 값의 쌍을 저장하고 검색하는데 사용
+        for (ProductDTO product : productList) {
+            List<ProductResource> productResources = productResourceRepository.findByProductId(product.getId());
+
+            for (ProductResource productResource : productResources) {
+                Long resourceId = productResource.getResource().getId();
+                Long quantity = product.getQuantity();
+
+                accumulatedResource.put(resourceId, productResource.getAmount() * quantity);
+            }
+        }
+        log.info("accumulatedResource: {}", accumulatedResource);
+
+        // 2. 자판기 내 총 자원 수량 정보
+        List<VMResource> vmResources = vmResourceRepository.findByVendingMachineId(vmId);
+        Map<Long, Long> totalVMResource = new HashMap<>();
+        for (VMResource vmResource : vmResources) {
+            Long resourceId = vmResource.getResource().getId();
+            Long quantity = vmResource.getQuantity();
+
+            totalVMResource.put(resourceId, quantity);
+        }
+        log.info("totalVMResource: {}", totalVMResource);
+
+        // 판매 가능한 상품 리스트 확인
+        List<ProductDTO> availableProducts = new ArrayList<>();
+        for (ProductDTO product : productList) {
+            boolean isAvailable = true;
+            List<ProductResource> productResources = productResourceRepository.findByProductId(product.getId());
+            for (ProductResource productResource : productResources) {
+                Long resourceId = productResource.getResource().getId();
+
+                Long accumulatedQuantity = accumulatedResource.get(resourceId);
+                Long totalVMQuantity = totalVMResource.get(resourceId);
+                if (accumulatedQuantity > totalVMQuantity) {
+                    isAvailable = false;
+                    break;
+                }
+            }
+            if (isAvailable) {
+                availableProducts.add(product);
+            }
+        }
+
+        return availableProducts;
     }
 }
