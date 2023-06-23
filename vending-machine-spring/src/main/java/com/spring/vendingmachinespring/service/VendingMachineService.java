@@ -117,28 +117,11 @@ public class VendingMachineService {
     // 판매 가능한 상품 리스트 반환
     private List<ProductDTO> checkProductResource(Long vmId, List<ProductDTO> productList) {
         // 1. 필요 자원 수량 누적 정보
-        Map<Long, Long> accumulatedResource = new HashMap<>(); // 해시맵 자료구조: 키와 값의 쌍을 저장하고 검색하는데 사용
-        for (ProductDTO product : productList) {
-            List<ProductResource> productResources = productResourceRepository.findByProductId(product.getId());
-
-            for (ProductResource productResource : productResources) {
-                Long resourceId = productResource.getResource().getId();
-                Long quantity = product.getQuantity();
-
-                accumulatedResource.put(resourceId, productResource.getAmount() * quantity);
-            }
-        }
+        Map<Long, Long> accumulatedResource = getAccumulateResource(productList);
         log.info("accumulatedResource: {}", accumulatedResource);
 
         // 2. 자판기 내 총 자원 수량 정보
-        List<VMResource> vmResources = vmResourceRepository.findByVendingMachineId(vmId);
-        Map<Long, Long> totalVMResource = new HashMap<>();
-        for (VMResource vmResource : vmResources) {
-            Long resourceId = vmResource.getResource().getId();
-            Long quantity = vmResource.getQuantity();
-
-            totalVMResource.put(resourceId, quantity);
-        }
+        Map<Long, Long> totalVMResource = getTotalVMResource(vmId);
         log.info("totalVMResource: {}", totalVMResource);
 
         // 판매 가능한 상품 리스트 확인
@@ -163,4 +146,36 @@ public class VendingMachineService {
 
         return availableProducts;
     }
+
+    // 필요 자원 수량 누적 정보 조회
+    private Map<Long, Long> getAccumulateResource(List<ProductDTO> productList) {
+        Map<Long, Long> accumulatedResource = new HashMap<>(); // 해시맵 자료구조: 키와 값의 쌍을 저장하고 검색하는데 사용
+        for (ProductDTO product : productList) {
+            List<ProductResource> productResources = productResourceRepository.findByProductId(product.getId());
+
+            for (ProductResource productResource : productResources) {
+                Long resourceId = productResource.getResource().getId();
+                Long quantity = product.getQuantity();
+
+                Long accumulatedQuantity = accumulatedResource.getOrDefault(resourceId, 0L);
+                accumulatedQuantity += productResource.getAmount() * quantity;
+                accumulatedResource.put(resourceId, accumulatedQuantity);
+            }
+        }
+        return accumulatedResource;
+    }
+
+    // 자판기 내 총 자원 수량 조회
+    private Map<Long, Long> getTotalVMResource(Long vmId) {
+        List<VMResource> vmResources = vmResourceRepository.findByVendingMachineId(vmId);
+        Map<Long, Long> totalVMResource = new HashMap<>();
+        for (VMResource vmResource : vmResources) {
+            Long resourceId = vmResource.getResource().getId();
+            Long quantity = vmResource.getQuantity();
+
+            totalVMResource.put(resourceId, quantity);
+        }
+        return totalVMResource;
+    }
+
 }
