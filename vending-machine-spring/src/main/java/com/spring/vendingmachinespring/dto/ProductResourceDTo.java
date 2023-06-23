@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProductResourceDTo {
+public class ProductResourceDTO {
     private Long id;
     private Long productId;
     private Long resourceId;
