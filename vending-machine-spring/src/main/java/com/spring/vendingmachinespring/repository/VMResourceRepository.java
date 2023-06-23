@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface VMResourceRepository extends JpaRepository<VMResource, Long> {
     List<VMResource> findByVendingMachineId(Long vmId);
+
+    VMResource findByVendingMachineIdAndName(Long vmId, String cash);
+
+    VMResource findByVendingMachineIdAndResourceId(Long vmId, Long resourceId);
 }

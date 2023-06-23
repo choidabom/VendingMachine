@@ -1,6 +1,8 @@
 package com.spring.vendingmachinespring.controller;
 
+import com.spring.vendingmachinespring.dto.OrderRequestDTO;
 import com.spring.vendingmachinespring.dto.ProductDTO;
+import com.spring.vendingmachinespring.service.PaymentService;
 import com.spring.vendingmachinespring.service.VendingMachineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class VendingMachineController {
     private final VendingMachineService vendingMachineService;
+    private final PaymentService paymentService;
 
     // 자판기 가동 API
     @GetMapping("/{vmId}")
@@ -53,7 +56,7 @@ public class VendingMachineController {
     }
 
     // 상품 조회 API
-    @GetMapping("{vmId}/product")
+    @GetMapping("/{vmId}/product")
     public ResponseEntity<List<ProductDTO>> getProduct(@PathVariable Long vmId) {
         if (vmId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
@@ -77,7 +80,7 @@ public class VendingMachineController {
     }
 
     // 상품 선택할 때마다, 제품 재고 가능 여부 확인 API
-    @PostMapping("{vmId}/checkAvailability")
+    @PostMapping("/{vmId}/checkAvailability")
     public ResponseEntity<Boolean> checkProductAvailability(@PathVariable Long vmId, @RequestBody List<ProductDTO> selectedProducts) {
         if (vmId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
@@ -91,6 +94,33 @@ public class VendingMachineController {
             }
         } catch (Exception e) {
             log.error("Failed to select product.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 가격 결제 API
+    @PostMapping("/{vmId}/order")
+    public ResponseEntity<Long> processOrder(@PathVariable("vmId") Long vmId, @RequestBody OrderRequestDTO requestDTO) {
+        if (vmId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body");
+        }
+        try {
+            Long inputMoney = requestDTO.getInputMoney();
+            Long paymentMethod = requestDTO.getPaymentMethod();
+            List<ProductDTO> selectedProducts = requestDTO.getSelectedProducts();
+            log.info("inputMoney: {}", inputMoney);
+            log.info("paymentMethod: {}", paymentMethod);
+            log.info("selectedProducts: {}", selectedProducts);
+
+            Long refund = paymentService.processOrderTransaction(vmId, inputMoney, paymentMethod, selectedProducts);
+            if (refund != null) {
+                return ResponseEntity.ok(refund);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to pay for product.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -26,7 +26,7 @@ public class VendingMachine {
 
     @OneToMany(mappedBy = "vendingMachine")
     @JsonBackReference
-    private List<Orders> orders;
+    private List<Order> orders;
 
     @OneToMany(mappedBy = "vendingMachine")
     @JsonBackReference
