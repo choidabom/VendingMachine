@@ -13,6 +13,7 @@ import SelectedMoneyStore from '../../../store/SelectedMoneyStore';
 const AvailableProduct = (props: { vmID: number; }) => {
     const vmID = props.vmID;
     const navigate = useNavigate();
+
     const { saveMoney } = SaveMoneyStore();
     const { setSelectedMoney } = SelectedMoneyStore();
     const [availableProducts, setAvailableProducts] = useState<Array<ProductEntity>>([]);
@@ -21,28 +22,33 @@ const AvailableProduct = (props: { vmID: number; }) => {
     useEffect(() => {
         if (vmID) {
             fetchAvailableProducts(); // 판매 가능 상품
-            const storedSelectedProducts = localStorage.getItem('selectedProducts');
-            if (storedSelectedProducts) {
-                setSelectedProducts(JSON.parse(storedSelectedProducts));
-            }
+            // const storedSelectedProducts = localStorage.getItem('selectedProducts');
+            // if (storedSelectedProducts) {
+            //     setSelectedProducts(JSON.parse(storedSelectedProducts));
+            // }
         } else {
             navigate('/'); // vmID가 없으면 홈으로 이동
         }
     }, [vmID]);
 
-    useEffect(() => {
-        localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
-    }, [selectedProducts]);
+
+    // useEffect(() => {
+    //     localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+    // }, [selectedProducts]);
+
 
     // Vending Machine 내 판매 가능 상품 GET
     const fetchAvailableProducts = async () => {
         try {
-            const url = `${API_URL}/:${vmID}/product`;
-            let requestOptions: RequestInit = {
+            const url = `${API_URL}/${vmID}/product`;
+            const requestOptions: RequestInit = {
+                headers: {
+                    Accept: "application/json",
+                },
                 method: "GET",
             };
             const response = await fetch(url, requestOptions);
-            if (response.ok) {
+            if (response.status == 200) {
                 const data: Array<ProductEntity> = await response.json();
                 setAvailableProducts(data);
             } else if (response.status === 500) {
@@ -121,18 +127,16 @@ const AvailableProduct = (props: { vmID: number; }) => {
 
     // 상품 선택 시 재고 여부 체크
     const checkProductAvailability = async (selectedProducts: ProductEntity[]) => {
-        // console.log('selectedProducts: ', selectedProducts);
+        console.log('selectedProducts: ', selectedProducts);
 
         try {
-            const url = `${API_URL}/:${vmID}/checkAvailability`;
+            const url = `${API_URL}/${vmID}/checkAvailability`;
             const requestOptions = {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    selectedProducts: selectedProducts,
-                }),
+                body: JSON.stringify(selectedProducts), // 변경된 부분
             };
 
             const response = await fetch(url, requestOptions);

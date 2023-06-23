@@ -21,7 +21,7 @@ const VendingMachine = () => {
         }
         try {
             const url = `${API_URL}/${vmID}`;
-            let requestOptions: RequestInit = {
+            const requestOptions: RequestInit = {
                 headers: {
                     Accept: "application/json",
                 },
@@ -29,20 +29,19 @@ const VendingMachine = () => {
             };
 
             const response = await fetch(url, requestOptions);
-            if (response.ok) {
+            if (response.status == 200) {
                 const okMessage = await response.json();
-                console.log(okMessage.vmId);
             } else if (response.status === 500) {
                 const errorMessage = await response.json();
-                console.log("errorMessage: ", errorMessage);
             } else {
                 throw new Error('Network response was not ok.');
             }
         } catch (error) {
+            // fetch 에서 예외가 발생한 경우 catch 블록이 실행됨.
+            // 상태 코드가 500인 경우에도 catch 블록이 실행됨.
             console.log("error: ", error);
         }
     };
-
 
     return (
         <>
@@ -51,7 +50,7 @@ const VendingMachine = () => {
                     <PayMoneyLogic />
                 </LeftContainer>
                 <RightContainer>
-                    {/* <AvailableProduct vmID={Number(vmID)} /> */}
+                    <AvailableProduct vmID={Number(vmID)} />
                 </RightContainer>
             </VMContainer>
         </>

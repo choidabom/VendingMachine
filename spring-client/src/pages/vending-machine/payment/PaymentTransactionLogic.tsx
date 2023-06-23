@@ -21,7 +21,7 @@ const PaymentTransactionLogic: React.FC<PaymentTransactionProps> = ({ vmID, tota
 
     useEffect(() => {
         if (paymentData) {
-            localStorage.removeItem('selectedProducts');
+            // localStorage.removeItem('selectedProducts');
             setTimeOutFunction();
         }
 
@@ -29,9 +29,7 @@ const PaymentTransactionLogic: React.FC<PaymentTransactionProps> = ({ vmID, tota
 
 
     const handlePaymentTransaction = async () => {
-        if (paymentInProgress) {
-            return;
-        }
+        if (paymentInProgress) return;
 
         if (!totalPrice || !selectedProducts) {
             alert("상품을 선택하지 않았기에 결제할 수 없습니다.");
@@ -47,7 +45,7 @@ const PaymentTransactionLogic: React.FC<PaymentTransactionProps> = ({ vmID, tota
                 return;
             }
             setPaymentInProgress(true);
-            const url = `${API_URL}/:${vmID}/order`;
+            const url = `${API_URL}/${vmID}/order`;
             const requestOptions = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -72,15 +70,6 @@ const PaymentTransactionLogic: React.FC<PaymentTransactionProps> = ({ vmID, tota
         } finally {
             setPaymentInProgress(false);
         }
-    };
-
-
-    // 취소하기 버튼
-    const handleCancelOrder = async () => {
-        for (let product of selectedProducts) {
-            handleProduct(product);
-        }
-        localStorage.removeItem('selectedProducts');
     };
 
     const setTimeOutFunction = () => {
@@ -109,15 +98,6 @@ const PaymentTransactionLogic: React.FC<PaymentTransactionProps> = ({ vmID, tota
                             margin: "5px"
                         }} onClick={handlePaymentTransaction}>결제하기</button>
                     </div>
-                    {/* <div style={{ display: 'flex', flexDirection: "row" }}>
-                        <button style={{
-                            color: "white",
-                            width: "80px",
-                            height: "40px",
-                            padding: "10px 10px",
-                            margin: "5px"
-                        }} onClick={handleCancelOrder}>취소하기</button>
-                    </div> */}
                 </>}
         </>
     );
